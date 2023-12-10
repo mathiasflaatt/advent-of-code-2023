@@ -1,7 +1,13 @@
 use std::{env, fs};
 
+#[allow(dead_code)]
 pub fn read_example() -> String {
     read_file("example")
+}
+
+#[allow(dead_code)]
+pub fn read_example_2() -> String {
+    read_file("example_2")
 }
 
 pub fn read_input() -> String {
