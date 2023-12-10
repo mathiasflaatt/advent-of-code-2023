@@ -1,39 +1,42 @@
-use std::time::Instant;
-
 use helpers::{print_day, print_solution, read_input};
 
 mod helpers;
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let lines = input.split('\n');
-    let total = lines
+    let total = input
+        .split('\n')
         .map(|line| {
-            let mut sum = 0;
-            for c in line.chars() {
-                let res = c.to_digit(10);
-                if res.is_some() {
-                    let num = res.unwrap();
-                    sum = num * 10;
+            let mut front_num: Option<u32> = None;
+            let mut back_num: Option<u32> = None;
+
+            for i in 0..line.chars().count() {
+                if front_num.is_some() && back_num.is_some() {
                     break;
+                }
+
+                if front_num.is_none() {
+                    let front_char = line.chars().nth(i).unwrap();
+                    front_num = c_to_num(front_char);
+                }
+
+                if back_num.is_none() {
+                    let back_char = line.chars().nth(line.chars().count() - 1 - i).unwrap();
+                    back_num = c_to_num(back_char);
                 }
             }
 
-            for c in line.chars().rev() {
-                let res = c.to_digit(10);
-                if res.is_some() {
-                    let num = res.unwrap();
-                    sum = sum + num;
-                    break;
-                }
-            }
-            sum
+            front_num.unwrap() * 10 + back_num.unwrap()
         })
-        .fold(0, |a, b| a + b);
+        .sum::<u32>();
 
     Some(total)
 }
 
-fn to_number(s: &str) -> Option<u32> {
+fn c_to_num(c: char) -> Option<u32> {
+    c.to_digit(10)
+}
+
+fn s_to_number(s: &str) -> Option<u32> {
     if s.contains("one") {
         return Some(1);
     }
@@ -68,52 +71,39 @@ fn to_number(s: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let lines = input.split('\n');
-    let total = lines
+    let total = input
+        .split('\n')
         .map(|line| {
-            let mut sum = 0;
-            let mut acc = "".to_string();
+            let mut front_num: Option<u32> = None;
+            let mut back_num: Option<u32> = None;
 
-            for c in line.chars() {
-                let res = c.to_digit(10);
-                if res.is_some() {
-                    let num = res.unwrap();
-                    sum = num * 10;
+            for i in 0..line.chars().count() {
+                if front_num.is_some() && back_num.is_some() {
                     break;
                 }
 
-                acc.push(c);
-                let potential_number = to_number(&acc);
-                if potential_number.is_some() {
-                    let num = potential_number.unwrap();
-                    sum = num * 10;
-                    break;
-                }
-            }
-
-            acc = "".to_string();
-
-            for c in line.chars().rev() {
-                let res = c.to_digit(10);
-                if res.is_some() {
-                    let num = res.unwrap();
-                    sum = sum + num;
-                    // println!("{}/{}", num, acc);
-                    break;
+                if front_num.is_none() {
+                    let front_char = line.chars().nth(i).unwrap();
+                    front_num = c_to_num(front_char);
+                    if front_num.is_none() {
+                        let front_str = &line[0..i];
+                        front_num = s_to_number(front_str);
+                    }
                 }
 
-                acc.insert(0, c);
-                let potential_number = to_number(&acc);
-                if potential_number.is_some() {
-                    let num = potential_number.unwrap();
-                    sum = sum + num;
-                    // println!("{}/{}", num, acc);
-                    break;
+                if back_num.is_none() {
+                    let back_char = line.chars().nth(line.chars().count() - 1 - i).unwrap();
+                    back_num = c_to_num(back_char);
+                    if back_num.is_none() {
+                        let back_str = &line[line.chars().count() - 1 - i..line.chars().count()];
+                        back_num = s_to_number(back_str);
+                    }
                 }
             }
-            sum
+
+            front_num.unwrap() * 10 + back_num.unwrap()
         })
-        .fold(0, |a, b| a + b);
+        .sum::<u32>();
 
     Some(total)
 }
@@ -128,10 +118,9 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::helpers::read_example;
+    use crate::helpers::{read_example, read_example_2};
 
     #[test]
-    #[ignore]
     fn test_part_one() {
         let input = read_example();
         assert_eq!(part_one(&input), Some(142));
@@ -139,7 +128,7 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let input = read_example();
+        let input = read_example_2();
         assert_eq!(part_two(&input), Some(281));
     }
 }
