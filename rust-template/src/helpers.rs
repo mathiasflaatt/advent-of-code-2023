@@ -9,6 +9,11 @@ pub fn read_example() -> String {
 pub fn read_example_2() -> String {
     read_file("example_2")
 }
+
+pub fn read_input() -> String {
+    read_file("input")
+}
+
 fn read_file(file_name: &str) -> String {
     let f = fs::read_to_string(format!("src/{}.txt", file_name));
     f.expect("could not open input file")
